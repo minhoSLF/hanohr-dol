@@ -293,12 +293,6 @@
     border-top:0;
   }
   .maplink:hover,.maplink:focus-visible{color:var(--ink)}
-  .maphint{
-    margin:7px 0 0;
-    text-align:center;
-    font-size:11px;
-    color:var(--muted);
-  }
 
   /* ── family ───────────────────────────── */
   .family{
@@ -400,7 +394,6 @@
       <a class="maplink" href="https://map.naver.com/p/search/%EA%B1%B0%EA%B6%81%20%EB%8C%80%EA%B5%AC%EC%A0%90" target="_blank" rel="noopener">
         수성못 옆 · 수성스퀘어 2층 &nbsp;›&nbsp; 지도 앱에서 열기
       </a>
-      <p class="maphint">지도를 끌어서 이동, 손가락으로 벌려서 확대</p>
     </div>
 
     <div class="divider"><span>◆</span></div>
@@ -527,8 +520,15 @@
       mb.addEventListener('pointercancel', up);
       document.getElementById('mapIn').addEventListener('click', function () { var c = center(); zoomAt(c[0], c[1], sc * 1.4); });
       document.getElementById('mapOut').addEventListener('click', function () { var c = center(); zoomAt(c[0], c[1], sc / 1.4); });
-      document.getElementById('mapReset').addEventListener('click', function () { sc = 1; tx = 0; ty = 0; apply(); });
-      apply();
+      function home() {
+        sc = 1.3;
+        tx = -(0.63 * mb.clientWidth * sc - mb.clientWidth / 2);
+        ty = -(0.60 * mb.clientHeight * sc - mb.clientHeight / 2);
+        apply();
+      }
+      document.getElementById('mapReset').addEventListener('click', home);
+      home();
+      window.addEventListener('resize', apply);
     })();
 
     var addr = '대구 수성구 두산동 863-1 거궁 한정식 대구점 2층';
