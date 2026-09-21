@@ -107,7 +107,12 @@
     overflow:hidden;
     background:#E7E2D9;
     position:relative;
+    touch-action:pan-y;
+    cursor:grab;
+    -webkit-user-select:none;
+    user-select:none;
   }
+  .photo.is-dragging{cursor:grabbing}
   .track{
     display:flex;
     height:100%;
@@ -116,6 +121,8 @@
   }
   .track img{
     flex:0 0 100%;
+    -webkit-user-drag:none;
+    pointer-events:none;
     width:100%;
     height:100%;
     object-fit:cover;
@@ -357,7 +364,33 @@
     });
     var box = document.getElementById('photo');
     box.addEventListener('pointerenter', stop);
-    box.addEventListener('pointerleave', play);
+    box.addEventListener('pointerleave', function () { if (!drag) play(); });
+
+    // 손가락·마우스로 밀어서 넘기기
+    var drag = false, startX = 0, dx = 0, w = 0;
+    box.addEventListener('pointerdown', function (e) {
+      drag = true; startX = e.clientX; dx = 0; w = box.clientWidth;
+      stop();
+      box.classList.add('is-dragging');
+      track.style.transition = 'none';
+      box.setPointerCapture(e.pointerId);
+    });
+    box.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      dx = e.clientX - startX;
+      track.style.transform = 'translateX(' + (-cur * w + dx) + 'px)';
+    });
+    function endDrag() {
+      if (!drag) return;
+      drag = false;
+      box.classList.remove('is-dragging');
+      track.style.transition = '';
+      if (Math.abs(dx) > w * 0.16) show(dx < 0 ? cur + 1 : cur - 1);
+      else show(cur);
+      play();
+    }
+    box.addEventListener('pointerup', endDrag);
+    box.addEventListener('pointercancel', endDrag);
     document.addEventListener('visibilitychange', function () { document.hidden ? stop() : play(); });
     show(0); play();
 
